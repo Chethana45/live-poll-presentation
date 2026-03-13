@@ -1,72 +1,77 @@
-
-
-import { initializeApp }
+import { initializeApp } 
 from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"
 
-import { getDatabase, ref, push, onValue }
+import { getDatabase, ref, push, onValue } 
 from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"
 
 import { topics } from "./topics.js"
 
+
+// 🔹 Firebase configuration
 const firebaseConfig = {
 
-apiKey:"AIzaSyDZZSJ-ULLXEqg3b5d76yvGIUGdGFxnHmY",
-
-authDomain:"live-poll-presentation.firebaseapp.com",
-
-databaseURL:"https://live-poll-presentation-default-rtdb.firebaseio.com/",
-
-projectId:"live-poll-presentation"
+apiKey: "AIzaSyDZZSJ-ULLXEqg3b5d76yvGIUGdGFxnHmY",
+authDomain: "live-poll-presentation.firebaseapp.com",
+databaseURL: "https://live-poll-presentation-default-rtdb.firebaseio.com/",
+projectId: "live-poll-presentation",
+storageBucket: "live-poll-presentation.appspot.com",
+messagingSenderId: "157429793183",
+appId: "1:157429793183:web:9fbca05234027e651a3daa"
 
 }
 
-const app = initializeApp(firebaseConfig)
 
+// 🔹 Initialize Firebase
+const app = initializeApp(firebaseConfig)
 const db = getDatabase(app)
 
-let topicIndex=0
 
-let score=0
+// Quiz state
+let topicIndex = 0
+let score = 0
 
-const topic=document.getElementById("topic")
-const theory=document.getElementById("theory")
 
-const question=document.getElementById("question")
+// UI Elements
+const topic = document.getElementById("topic")
+const theory = document.getElementById("theory")
 
-const options=document.getElementById("options")
+const question = document.getElementById("question")
+const options = document.getElementById("options")
 
-const startBtn=document.getElementById("startBtn")
+const startBtn = document.getElementById("startBtn")
+const nextBtn = document.getElementById("nextBtn")
 
-const nextBtn=document.getElementById("nextBtn")
+const timerText = document.getElementById("timer")
 
-const timerText=document.getElementById("timer")
+const chartCanvas = document.getElementById("chart")
 
-const chartCanvas=document.getElementById("chart")
-
-const scoreText=document.getElementById("score")
+const scoreText = document.getElementById("score")
 
 let chart
-let time=10
+let time = 10
 let timer
 
+
+
+// 🔹 Load topic theory and question
 function loadTopic(){
 
-const t=topics[topicIndex]
+const t = topics[topicIndex]
 
-topic.innerText=t.title
-theory.innerText=t.theory
+topic.innerText = t.title
+theory.innerText = t.theory
 
-question.innerText=t.question.text
+question.innerText = t.question.text
 
-options.innerHTML=""
+options.innerHTML = ""
 
 t.question.options.forEach(opt=>{
 
-const btn=document.createElement("button")
+const btn = document.createElement("button")
 
-btn.innerText=opt
+btn.innerText = opt
 
-btn.onclick=()=>vote(opt)
+btn.onclick = ()=> vote(opt)
 
 options.appendChild(btn)
 
@@ -74,17 +79,20 @@ options.appendChild(btn)
 
 }
 
+
+
+// 🔹 Timer
 function startTimer(){
 
-time=10
+time = 10
 
-timer=setInterval(()=>{
+timer = setInterval(()=>{
 
-timerText.innerText="Time left: "+time
+timerText.innerText = "Time left: " + time + "s"
 
 time--
 
-if(time<0){
+if(time < 0){
 
 clearInterval(timer)
 
@@ -96,15 +104,18 @@ showResults()
 
 }
 
+
+
+// 🔹 Submit vote to Firebase
 function vote(option){
 
 push(ref(db,"polls/"+topicIndex),{
 
-answer:option
+answer: option
 
 })
 
-if(option===topics[topicIndex].question.correct){
+if(option === topics[topicIndex].question.correct){
 
 score++
 
@@ -116,27 +127,30 @@ showResults()
 
 }
 
+
+
+// 🔹 Show poll results
 function showResults(){
 
-const voteRef=ref(db,"polls/"+topicIndex)
+const voteRef = ref(db,"polls/"+topicIndex)
 
 onValue(voteRef,(snapshot)=>{
 
-const data=snapshot.val()||{}
+const data = snapshot.val() || {}
 
-const counts={}
+const counts = {}
 
-topics[topicIndex].question.options.forEach(o=>counts[o]=0)
+topics[topicIndex].question.options.forEach(o => counts[o] = 0)
 
-Object.values(data).forEach(v=>counts[v.answer]++)
+Object.values(data).forEach(v => counts[v.answer]++)
 
-const labels=Object.keys(counts)
+const labels = Object.keys(counts)
 
-const values=Object.values(counts)
+const values = Object.values(counts)
 
 if(chart) chart.destroy()
 
-chart=new Chart(chartCanvas,{
+chart = new Chart(chartCanvas,{
 
 type:"bar",
 
@@ -154,19 +168,25 @@ data:values
 
 }
 
-startBtn.onclick=()=>{
+
+
+// 🔹 Start poll
+startBtn.onclick = ()=>{
 
 startTimer()
 
 }
 
-nextBtn.onclick=()=>{
+
+
+// 🔹 Next topic
+nextBtn.onclick = ()=>{
 
 topicIndex++
 
-if(topicIndex>=topics.length){
+if(topicIndex >= topics.length){
 
-scoreText.innerText="🎉 Your Score: "+score+"/"+topics.length
+scoreText.innerText = "🎉 Your Score: " + score + "/" + topics.length
 
 return
 
@@ -176,4 +196,7 @@ loadTopic()
 
 }
 
+
+
+// 🔹 Initialize first topic
 loadTopic()
