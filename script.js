@@ -14,113 +14,131 @@ appId: "1:157429793183:web:9fbca05234027e651a3daa"
 
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
 
-let topicIndex = 0;
-let questionIndex = 0;
-let time = 15;
-let timer;
+const app = initializeApp(firebaseConfig)
+const db = getDatabase(app)
 
-const topicTitle = document.getElementById("topic");
-const desc = document.getElementById("description");
-const question = document.getElementById("question");
-const options = document.getElementById("options");
-const timerText = document.getElementById("timer");
-const nextBtn = document.getElementById("nextBtn");
+let topicIndex = 0
 
-function startTimer(){
+const topicTitle = document.getElementById("topic")
+const theory = document.getElementById("theory")
 
-clearInterval(timer);
-time = 15;
+const questionBox = document.getElementById("questionBox")
+const question = document.getElementById("question")
+const options = document.getElementById("options")
 
-timer = setInterval(()=>{
+const startBtn = document.getElementById("startBtn")
+const nextBtn = document.getElementById("nextBtn")
 
-timerText.innerText = "Time left: " + time + "s";
+const chartCanvas = document.getElementById("resultsChart")
 
-time--;
+let chart
 
-if(time < 0){
-clearInterval(timer);
-timerText.innerText = "Time up!";
-}
 
-},1000);
+function loadTopic(){
 
-}
+const t = topics[topicIndex]
 
-function loadQuestion(){
+topicTitle.innerText = t.title
+theory.innerText = t.theory
 
-const currentTopic = topics[topicIndex];
-const currentQuestion = currentTopic.questions[questionIndex];
+question.innerText = t.question.text
 
-topicTitle.innerText = currentTopic.title;
-desc.innerText = currentTopic.description;
-question.innerText = currentQuestion.q;
+options.innerHTML=""
 
-options.innerHTML="";
+t.question.options.forEach(option=>{
 
-currentQuestion.options.forEach(option=>{
+const btn=document.createElement("button")
+btn.innerText=option
 
-const btn=document.createElement("button");
-btn.innerText=option;
+btn.onclick=()=>submitVote(option)
 
-btn.onclick=()=>submitAnswer(option);
+options.appendChild(btn)
 
-options.appendChild(btn);
-
-});
-
-startTimer();
+})
 
 }
 
-function submitAnswer(option){
+function submitVote(option){
 
-const correct = topics[topicIndex].questions[questionIndex].correct;
+push(ref(db,"polls/"+topicIndex),{
 
-push(ref(db,"votes"),{
-
-topic:topics[topicIndex].title,
-question:questionIndex,
 answer:option
 
-});
+})
 
-if(option===correct){
-
-alert("✅ Correct!");
-
-}else{
-
-alert("❌ Wrong. Correct answer: "+correct);
+showResults()
 
 }
 
-clearInterval(timer);
+function showResults(){
+
+questionBox.style.display="none"
+chartCanvas.style.display="block"
+
+const voteRef = ref(db,"polls/"+topicIndex)
+
+onValue(voteRef,(snapshot)=>{
+
+const data = snapshot.val() || {}
+
+const counts = {}
+
+topics[topicIndex].question.options.forEach(o=>{
+counts[o]=0
+})
+
+Object.values(data).forEach(v=>{
+counts[v.answer]++
+})
+
+const labels = Object.keys(counts)
+const values = Object.values(counts)
+
+if(chart) chart.destroy()
+
+chart = new Chart(chartCanvas,{
+
+type:"bar",
+
+data:{
+labels:labels,
+datasets:[{
+label:"Votes",
+data:values
+}]
+}
+
+})
+
+})
+
+}
+
+startBtn.onclick=()=>{
+
+questionBox.style.display="block"
+startBtn.style.display="none"
 
 }
 
 nextBtn.onclick=()=>{
 
-questionIndex++;
+topicIndex++
 
-if(questionIndex >= topics[topicIndex].questions.length){
-
-questionIndex=0;
-topicIndex++;
-
-}
+chartCanvas.style.display="none"
+questionBox.style.display="none"
+startBtn.style.display="inline"
 
 if(topicIndex>=topics.length){
 
-alert("🎉 Presentation Finished");
-return;
+alert("Presentation finished")
+return
 
 }
 
-loadQuestion();
+loadTopic()
 
-};
+}
 
-loadQuestion();
+loadTopic()
