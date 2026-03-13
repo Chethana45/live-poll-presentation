@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
-import { topics } from "./topics.js";
+import { topics } from "./topic.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDZZSJ-ULLXEqg3b5d76yvGIUGdGFxnHmY",
@@ -83,3 +83,4 @@ nextBtn.onclick = () => {
 };
 
 loadQuestion();
+
