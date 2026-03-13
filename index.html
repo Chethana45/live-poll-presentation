@@ -1,28 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Full Stack Interactive Quiz</title>
-
+<title>Full Stack Interactive Presentation</title>
 <link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </head>
 
 <body>
 
 <header>
+
 <h1>🚀 Full Stack Interactive Quiz</h1>
 <p>Participate and see live results!</p>
+
 </header>
 
 <div class="container">
 
 <h2 id="topic"></h2>
 
-<p id="description"></p>
+<p id="theory"></p>
+
+<div id="questionBox" style="display:none">
 
 <h3 id="question"></h3>
 
@@ -30,6 +33,11 @@
 
 <p id="timer"></p>
 
+</div>
+
+<canvas id="resultsChart" style="display:none"></canvas>
+
+<button id="startBtn">Start Poll</button>
 <button id="nextBtn">Next</button>
 
 </div>
@@ -37,4 +45,5 @@
 <script type="module" src="script.js"></script>
 
 </body>
+
 </html>
