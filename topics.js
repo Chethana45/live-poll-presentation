@@ -1,103 +1,146 @@
-export const topics = [
+import { initializeApp } from
+"https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"
 
-{
-title:"HTML & CSS",
+import { getDatabase, ref, push, onValue }
+from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"
 
-description:"HTML structures webpages using elements like headings, paragraphs and forms. CSS styles the page using layouts like Flexbox and Grid.",
+import { topics } from "./topics.js"
 
-questions:[
-{
-q:"Which element represents independent content?",
-options:["article","section","div","span"],
-correct:"article"
-},
-{
-q:"Which CSS property controls stacking order?",
-options:["display","z-index","position","float"],
-correct:"z-index"
-}
-]
 
-},
+const firebaseConfig = {
 
-{
-title:"Advanced JavaScript",
-
-description:"JavaScript enables interactive web pages. Advanced concepts include asynchronous programming, closures and the event loop.",
-
-questions:[
-{
-q:"What handles asynchronous tasks in JavaScript?",
-options:["Event Loop","Compiler","DOM Tree","Stack"],
-correct:"Event Loop"
-},
-{
-q:"typeof null returns?",
-options:["object","null","undefined","number"],
-correct:"object"
-}
-]
-
-},
-
-{
-title:"Node.js",
-
-description:"Node.js allows JavaScript to run on the server using a non-blocking event-driven architecture.",
-
-questions:[
-{
-q:"Which engine powers Node.js?",
-options:["V8","SpiderMonkey","Java VM","Chakra"],
-correct:"V8"
-},
-{
-q:"Which module handles file operations?",
-options:["fs","http","path","events"],
-correct:"fs"
-}
-]
-
-},
-
-{
-title:"React.js",
-
-description:"React builds modern user interfaces using reusable components and a Virtual DOM.",
-
-questions:[
-{
-q:"React improves performance using?",
-options:["Virtual DOM","Shadow DOM","Server DOM","CSS DOM"],
-correct:"Virtual DOM"
-},
-{
-q:"Which hook manages state?",
-options:["useState","useEffect","useMemo","useRef"],
-correct:"useState"
-}
-]
-
-},
-
-{
-title:"Express.js",
-
-description:"Express.js is a lightweight backend framework for Node.js used for APIs and routing.",
-
-questions:[
-{
-q:"Which method handles GET requests?",
-options:["app.get()","app.post()","app.use()","app.send()"],
-correct:"app.get()"
-},
-{
-q:"Middleware is?",
-options:["Function in request cycle","Database","CSS engine","Compiler"],
-correct:"Function in request cycle"
-}
-]
+apiKey: "AIzaSyDZZSJ-ULLXEqg3b5d76yvGIUGdGFxnHmY",
+authDomain: "live-poll-presentation.firebaseapp.com",
+databaseURL:
+"https://live-poll-presentation-default-rtdb.firebaseio.com/",
+projectId: "live-poll-presentation"
 
 }
 
-]
+const app = initializeApp(firebaseConfig)
+const db = getDatabase(app)
+
+let topicIndex = 0
+
+const topicTitle = document.getElementById("topic")
+const theory = document.getElementById("theory")
+
+const questionBox = document.getElementById("questionBox")
+const question = document.getElementById("question")
+const options = document.getElementById("options")
+
+const startBtn = document.getElementById("startBtn")
+const nextBtn = document.getElementById("nextBtn")
+
+const chartCanvas = document.getElementById("resultsChart")
+
+let chart
+
+
+function loadTopic(){
+
+const t = topics[topicIndex]
+
+topicTitle.innerText = t.title
+theory.innerText = t.theory
+
+question.innerText = t.question.text
+
+options.innerHTML=""
+
+t.question.options.forEach(option=>{
+
+const btn=document.createElement("button")
+btn.innerText=option
+
+btn.onclick=()=>submitVote(option)
+
+options.appendChild(btn)
+
+})
+
+}
+
+function submitVote(option){
+
+push(ref(db,"polls/"+topicIndex),{
+
+answer:option
+
+})
+
+showResults()
+
+}
+
+function showResults(){
+
+questionBox.style.display="none"
+chartCanvas.style.display="block"
+
+const voteRef = ref(db,"polls/"+topicIndex)
+
+onValue(voteRef,(snapshot)=>{
+
+const data = snapshot.val() || {}
+
+const counts = {}
+
+topics[topicIndex].question.options.forEach(o=>{
+counts[o]=0
+})
+
+Object.values(data).forEach(v=>{
+counts[v.answer]++
+})
+
+const labels = Object.keys(counts)
+const values = Object.values(counts)
+
+if(chart) chart.destroy()
+
+chart = new Chart(chartCanvas,{
+
+type:"bar",
+
+data:{
+labels:labels,
+datasets:[{
+label:"Votes",
+data:values
+}]
+}
+
+})
+
+})
+
+}
+
+startBtn.onclick=()=>{
+
+questionBox.style.display="block"
+startBtn.style.display="none"
+
+}
+
+nextBtn.onclick=()=>{
+
+topicIndex++
+
+chartCanvas.style.display="none"
+questionBox.style.display="none"
+startBtn.style.display="inline"
+
+if(topicIndex>=topics.length){
+
+alert("Presentation finished")
+return
+
+}
+
+loadTopic()
+
+}
+
+loadTopic()
