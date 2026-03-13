@@ -1,45 +1,59 @@
 body{
+
 font-family:Arial;
 background:#0f172a;
 color:white;
 text-align:center;
 margin:0;
+
 }
 
 header{
+
 background:#1e293b;
 padding:20px;
+
 }
 
 .container{
+
 margin-top:40px;
+
 }
 
 #options button{
+
 display:block;
 margin:10px auto;
-padding:10px;
+padding:12px;
 width:250px;
 background:#38bdf8;
 border:none;
 border-radius:6px;
 cursor:pointer;
+
 }
 
 #options button:hover{
+
 background:#0ea5e9;
+
 }
 
 #nextBtn{
+
 margin-top:20px;
 padding:10px 20px;
 background:#22c55e;
 border:none;
 border-radius:6px;
-cursor:pointer;
+
 }
 
-#timer{
-margin-top:10px;
-font-size:18px;
+#chart{
+
+max-width:500px;
+margin:auto;
+margin-top:30px;
+
 }
