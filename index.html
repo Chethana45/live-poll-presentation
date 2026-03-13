@@ -1,12 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 
-<title>Interactive Tech Quiz</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Full Stack Interactive Quiz</title>
 
 <link rel="stylesheet" href="style.css">
 
+<!-- Chart.js for poll results -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </head>
@@ -15,18 +19,21 @@
 
 <header>
 
-<h1>🚀 Full Stack Interactive Quiz</h1>
+<h1>🚀 Full Stack Interactive Presentation</h1>
 
-<p>Join the poll and see live results</p>
+<p>Participate in the live poll and see results instantly</p>
 
 </header>
 
 <div class="container">
 
+<!-- Topic Title -->
 <h2 id="topic"></h2>
 
+<!-- Theory Section -->
 <p id="theory"></p>
 
+<!-- Question Section -->
 <div id="questionBox">
 
 <h3 id="question"></h3>
@@ -37,18 +44,23 @@
 
 </div>
 
-<canvas id="chart"></canvas>
+<!-- Poll Results Chart -->
+<canvas id="chart" width="400" height="200"></canvas>
 
+<!-- Score Display -->
 <h3 id="score"></h3>
 
+<!-- Controls -->
 <button id="startBtn">Start Poll</button>
 
-<button id="nextBtn">Next</button>
+<button id="nextBtn">Next Topic</button>
 
 </div>
 
+<!-- Main Script -->
 <script type="module" src="script.js"></script>
 
 </body>
 
 </html>
+
